@@ -19,6 +19,11 @@ const DEFAULT_DATA = {
     'Kepala Keluarga: 1.180 KK',
     'Usia Produktif: 2.650 Jiwa'
   ],
+  pendudukRecords: [
+    { id: 'penduduk-1', nama: 'Ahmad Saputra', dusun: 'Dusun I', rtRw: '001/001', status: 'Aktif' },
+    { id: 'penduduk-2', nama: 'Siti Aisyah', dusun: 'Dusun II', rtRw: '002/001', status: 'Aktif' },
+    { id: 'penduduk-3', nama: 'Bambang Setiawan', dusun: 'Dusun III', rtRw: '003/002', status: 'Aktif' }
+  ],
   dusun: [
     'Dusun I: Way Ilahan',
     'Dusun II: Suka Maju',
@@ -30,6 +35,10 @@ const DEFAULT_DATA = {
     'Sekretaris Desa: Ibu Dwi Lestari',
     'Kaur Keuangan: Bapak Rudi',
     'Kasi Pelayanan: Ibu Nila'
+  ],
+  masyarakat: [
+    'Ahmad Saputra | 1801010101010001',
+    'Siti Aisyah | 1801010101010002'
   ],
   programs: [
     'Peningkatan jalan lingkungan dan sanitasi',
@@ -45,12 +54,22 @@ const DEFAULT_DATA = {
   ],
   berita: [
     {
+      id: 'berita-1',
       title: 'Musyawarah Desa Tahunan',
-      desc: 'Pemerintah desa menggelar musyawarah bersama masyarakat untuk membahas prioritas pembangunan 2026.'
+      desc: 'Pemerintah desa menggelar musyawarah bersama masyarakat untuk membahas prioritas pembangunan 2026.',
+      status: 'Terbit'
     },
     {
+      id: 'berita-2',
       title: 'Program Bantuan Sembako',
-      desc: 'Bantuan sosial telah dibagi kepada keluarga yang membutuhkan dengan mekanisme yang transparan.'
+      desc: 'Bantuan sosial telah dibagi kepada keluarga yang membutuhkan dengan mekanisme yang transparan.',
+      status: 'Terbit'
+    },
+    {
+      id: 'berita-3',
+      title: 'Pelatihan UMKM Desa',
+      desc: 'Kegiatan pelatihan masih dalam proses persiapan dan belum dipublikasikan.',
+      status: 'Draft'
     }
   ],
   gallery: [
@@ -73,6 +92,55 @@ function saveData(data) {
   localStorage.setItem('desaWayIlahanData', JSON.stringify(data));
 }
 
+function safeReadJson(key, fallback) {
+  try {
+    const value = localStorage.getItem(key);
+    return value ? JSON.parse(value) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function normalizePendudukRecords(data) {
+  const rawItems = Array.isArray(data.pendudukRecords) ? data.pendudukRecords : [];
+  return rawItems.map((item, index) => {
+    if (typeof item === 'string') {
+      return { id: `penduduk-${index + 1}`, nama: item, dusun: '-', rtRw: '-', status: 'Aktif' };
+    }
+    return {
+      id: item.id || `penduduk-${index + 1}`,
+      nama: item.nama || '-',
+      dusun: item.dusun || '-',
+      rtRw: item.rtRw || '-',
+      status: item.status || 'Aktif'
+    };
+  });
+}
+
+function normalizeBeritaItems(data) {
+  const rawItems = Array.isArray(data.berita) ? data.berita : [];
+  return rawItems.map((item, index) => {
+    if (typeof item === 'string') {
+      return { id: `berita-${index + 1}`, title: item, desc: '', status: 'Terbit' };
+    }
+    return {
+      id: item.id || `berita-${index + 1}`,
+      title: item.title || '',
+      desc: item.desc || '',
+      status: item.status || 'Terbit'
+    };
+  });
+}
+
 function renderPublicPage() {
   const data = loadData();
   document.getElementById('site-name').textContent = data.desaName;
@@ -91,7 +159,8 @@ function renderPublicPage() {
   document.getElementById('stat-dusun').textContent = data.dusunCount;
   document.getElementById('stat-rw').textContent = data.rwRt.split(' / ')[0];
   document.getElementById('stat-rt').textContent = data.rwRt.split(' / ')[1];
-  document.getElementById('penduduk-list').innerHTML = data.penduduk.map(item => `<li>${item}</li>`).join('');
+  const pendudukRecords = normalizePendudukRecords(data);
+  document.getElementById('penduduk-list').innerHTML = pendudukRecords.map(item => `<li><strong>${escapeHtml(item.nama)}</strong> — ${escapeHtml(item.dusun)}, ${escapeHtml(item.rtRw)}, ${escapeHtml(item.status)}</li>`).join('');
   document.getElementById('dusun-list').innerHTML = data.dusun.map(item => `<li>${item}</li>`).join('');
   document.getElementById('aparatur-list').innerHTML = data.aparatur.map(item => `<li>${item}</li>`).join('');
   document.getElementById('program-list').innerHTML = data.programs.map(item => `<li>${item}</li>`).join('');
@@ -99,10 +168,11 @@ function renderPublicPage() {
   document.getElementById('realisasi-value').textContent = data.realisasi;
   document.getElementById('sisa-value').textContent = `Rp ${formatRupiah(parseRupiah(data.anggaran) - parseRupiah(data.realisasi))}`;
   document.getElementById('keuangan-list').innerHTML = data.keuangan.map(item => `<li>${item}</li>`).join('');
-  document.getElementById('berita-list').innerHTML = data.berita.map(item => `
+  const publishedNews = normalizeBeritaItems(data).filter(item => item.status === 'Terbit');
+  document.getElementById('berita-list').innerHTML = publishedNews.map(item => `
     <article class="card">
-      <h3>${item.title}</h3>
-      <p>${item.desc}</p>
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.desc)}</p>
     </article>
   `).join('');
   document.getElementById('gallery-list').innerHTML = data.gallery.map(item => `
@@ -126,6 +196,13 @@ function formatRupiah(value) {
   return `Rp ${value.toLocaleString('id-ID')}`;
 }
 
+function parseListInput(value) {
+  return String(value || '')
+    .split(/\n/)
+    .map(item => item.trim())
+    .filter(Boolean);
+}
+
 function isAdminLoggedIn() {
   return localStorage.getItem('desaWayIlahanAdmin') === 'true';
 }
@@ -134,12 +211,20 @@ function setAdminSession(state) {
   localStorage.setItem('desaWayIlahanAdmin', state ? 'true' : 'false');
 }
 
+function getMasyarakatSession() {
+  return safeReadJson('desaWayIlahanUser', null);
+}
+
 function setupAdminPage() {
   const loginCard = document.getElementById('login-card');
   const dashboardCard = document.getElementById('dashboard-card');
   const loginForm = document.getElementById('login-form');
   const adminForm = document.getElementById('admin-form');
   const logoutBtn = document.getElementById('logout-btn');
+  const aparatInput = document.getElementById('aparatInput');
+  const masyarakatInput = document.getElementById('masyarakatInput');
+  const aparatPreview = document.getElementById('aparat-preview');
+  const masyarakatPreview = document.getElementById('masyarakat-preview');
 
   if (isAdminLoggedIn()) {
     loginCard.classList.add('hidden');
@@ -186,6 +271,8 @@ function setupAdminPage() {
     data.realisasi = document.getElementById('realisasi').value || data.realisasi;
     data.pengumuman = document.getElementById('pengumuman').value || data.pengumuman;
     data.contact = document.getElementById('contact').value || data.contact;
+    data.aparatur = parseListInput(aparatInput.value);
+    data.masyarakat = parseListInput(masyarakatInput.value);
     saveData(data);
     alert('Perubahan berhasil disimpan.');
     renderPublicPage();
@@ -211,13 +298,304 @@ function populateAdminForm() {
   document.getElementById('realisasi').value = data.realisasi;
   document.getElementById('pengumuman').value = data.pengumuman;
   document.getElementById('contact').value = data.contact;
+  document.getElementById('aparatInput').value = (data.aparatur || []).join('\n');
+  document.getElementById('masyarakatInput').value = (data.masyarakat || []).join('\n');
+  updateListPreviews(data);
+}
+
+function updateListPreviews(data) {
+  const aparatPreview = document.getElementById('aparat-preview');
+  const masyarakatPreview = document.getElementById('masyarakat-preview');
+  if (aparatPreview) {
+    aparatPreview.innerHTML = (data.aparatur || []).map(item => `<li>${item}</li>`).join('');
+  }
+  if (masyarakatPreview) {
+    masyarakatPreview.innerHTML = (data.masyarakat || []).map(item => `<li>${item}</li>`).join('');
+  }
+}
+
+function setupPendudukPage() {
+  const form = document.getElementById('penduduk-form');
+  const namaInput = document.getElementById('penduduk-nama');
+  const dusunInput = document.getElementById('penduduk-dusun');
+  const rtRwInput = document.getElementById('penduduk-rt-rw');
+  const statusInput = document.getElementById('penduduk-status');
+  const idInput = document.getElementById('penduduk-id');
+  const tableBody = document.getElementById('penduduk-table-body');
+  const resetBtn = document.getElementById('reset-penduduk-form');
+  let editingId = null;
+
+  function renderPendudukTable() {
+    const data = loadData();
+    const records = normalizePendudukRecords(data);
+    data.pendudukRecords = records;
+    saveData(data);
+
+    if (!tableBody) return;
+    if (!records.length) {
+      tableBody.innerHTML = '<tr><td colspan="5">Belum ada data penduduk.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = records.map(item => `
+      <tr>
+        <td>${escapeHtml(item.nama)}</td>
+        <td>${escapeHtml(item.dusun)}</td>
+        <td>${escapeHtml(item.rtRw)}</td>
+        <td>${escapeHtml(item.status)}</td>
+        <td>
+          <button class="btn btn-outline btn-sm" type="button" data-edit-id="${item.id}">Edit</button>
+          <button class="btn btn-outline btn-sm" type="button" data-delete-id="${item.id}">Hapus</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function resetForm() {
+    form.reset();
+    editingId = null;
+    idInput.value = '';
+    statusInput.value = 'Aktif';
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = loadData();
+    const records = normalizePendudukRecords(data);
+    const payload = {
+      id: editingId || `penduduk-${Date.now()}`,
+      nama: namaInput.value.trim(),
+      dusun: dusunInput.value.trim(),
+      rtRw: rtRwInput.value.trim(),
+      status: statusInput.value.trim()
+    };
+
+    if (!payload.nama || !payload.dusun || !payload.rtRw) {
+      alert('Lengkapi nama, dusun, dan RT/RW terlebih dahulu.');
+      return;
+    }
+
+    if (editingId) {
+      const index = records.findIndex(item => item.id === editingId);
+      if (index >= 0) records[index] = payload;
+    } else {
+      records.push(payload);
+    }
+
+    data.pendudukRecords = records;
+    saveData(data);
+    renderPendudukTable();
+    resetForm();
+  });
+
+  tableBody.addEventListener('click', (event) => {
+    const editBtn = event.target.closest('[data-edit-id]');
+    const deleteBtn = event.target.closest('[data-delete-id]');
+
+    if (editBtn) {
+      const data = loadData();
+      const records = normalizePendudukRecords(data);
+      const record = records.find(item => item.id === editBtn.getAttribute('data-edit-id'));
+      if (record) {
+        editingId = record.id;
+        idInput.value = record.id;
+        namaInput.value = record.nama;
+        dusunInput.value = record.dusun;
+        rtRwInput.value = record.rtRw;
+        statusInput.value = record.status;
+      }
+    }
+
+    if (deleteBtn) {
+      const data = loadData();
+      const records = normalizePendudukRecords(data).filter(item => item.id !== deleteBtn.getAttribute('data-delete-id'));
+      data.pendudukRecords = records;
+      saveData(data);
+      renderPendudukTable();
+      if (editingId === deleteBtn.getAttribute('data-delete-id')) resetForm();
+    }
+  });
+
+  resetBtn.addEventListener('click', resetForm);
+  renderPendudukTable();
+}
+
+function setupBeritaPage() {
+  const form = document.getElementById('berita-form');
+  const titleInput = document.getElementById('berita-title');
+  const descInput = document.getElementById('berita-desc');
+  const statusInput = document.getElementById('berita-status');
+  const idInput = document.getElementById('berita-id');
+  const tableBody = document.getElementById('berita-table-body');
+  const resetBtn = document.getElementById('reset-berita-form');
+  let editingId = null;
+
+  function renderBeritaTable() {
+    const data = loadData();
+    const items = normalizeBeritaItems(data);
+    data.berita = items;
+    saveData(data);
+
+    if (!tableBody) return;
+    if (!items.length) {
+      tableBody.innerHTML = '<tr><td colspan="4">Belum ada berita.</td></tr>';
+      return;
+    }
+
+    tableBody.innerHTML = items.map(item => `
+      <tr>
+        <td>${escapeHtml(item.title)}</td>
+        <td>${escapeHtml(item.desc)}</td>
+        <td><span class="status-pill ${item.status === 'Terbit' ? 'status-published' : 'status-draft'}">${escapeHtml(item.status)}</span></td>
+        <td>
+          <button class="btn btn-outline btn-sm" type="button" data-toggle-id="${item.id}">${item.status === 'Terbit' ? 'Jadikan Draft' : 'Terbitkan'}</button>
+          <button class="btn btn-outline btn-sm" type="button" data-edit-berita-id="${item.id}">Edit</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function resetForm() {
+    form.reset();
+    editingId = null;
+    idInput.value = '';
+    statusInput.value = 'Terbit';
+  }
+
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = loadData();
+    const items = normalizeBeritaItems(data);
+    const payload = {
+      id: editingId || `berita-${Date.now()}`,
+      title: titleInput.value.trim(),
+      desc: descInput.value.trim(),
+      status: statusInput.value.trim()
+    };
+
+    if (!payload.title) {
+      alert('Judul berita wajib diisi.');
+      return;
+    }
+
+    if (editingId) {
+      const index = items.findIndex(item => item.id === editingId);
+      if (index >= 0) items[index] = payload;
+    } else {
+      items.push(payload);
+    }
+
+    data.berita = items;
+    saveData(data);
+    renderBeritaTable();
+    resetForm();
+  });
+
+  tableBody.addEventListener('click', (event) => {
+    const toggleBtn = event.target.closest('[data-toggle-id]');
+    const editBtn = event.target.closest('[data-edit-berita-id]');
+
+    if (toggleBtn) {
+      const data = loadData();
+      const items = normalizeBeritaItems(data);
+      const item = items.find(entry => entry.id === toggleBtn.getAttribute('data-toggle-id'));
+      if (item) {
+        item.status = item.status === 'Terbit' ? 'Draft' : 'Terbit';
+        data.berita = items;
+        saveData(data);
+        renderBeritaTable();
+      }
+    }
+
+    if (editBtn) {
+      const data = loadData();
+      const items = normalizeBeritaItems(data);
+      const item = items.find(entry => entry.id === editBtn.getAttribute('data-edit-berita-id'));
+      if (item) {
+        editingId = item.id;
+        idInput.value = item.id;
+        titleInput.value = item.title;
+        descInput.value = item.desc;
+        statusInput.value = item.status;
+      }
+    }
+  });
+
+  resetBtn.addEventListener('click', resetForm);
+  renderBeritaTable();
+}
+
+function setupMasyarakatPage() {
+  const loginForm = document.getElementById('masyarakat-login-form');
+  const loginCard = document.getElementById('masyarakat-login-card');
+  const dashboard = document.getElementById('masyarakat-dashboard');
+  const logoutBtn = document.getElementById('masyarakat-logout');
+
+  if (localStorage.getItem('desaWayIlahanMasyarakat') === 'true') {
+    loginCard.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    const currentUser = getMasyarakatSession();
+    if (currentUser) {
+      document.getElementById('masyarakat-welcome').textContent = `Selamat datang, ${currentUser.nama}`;
+      document.getElementById('masyarakat-info').textContent = `NIK: ${currentUser.nik}`;
+    }
+  }
+
+  loginForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const nama = document.getElementById('masyarakat-nama').value.trim();
+    const nik = document.getElementById('masyarakat-nik').value.trim();
+    const data = loadData();
+    const found = (data.masyarakat || []).some(item => {
+      const [savedNama, savedNik] = item.split('|').map(part => part.trim());
+      return savedNama.toLowerCase() === nama.toLowerCase() && savedNik === nik;
+    });
+
+    if (found) {
+      localStorage.setItem('desaWayIlahanMasyarakat', 'true');
+      localStorage.setItem('desaWayIlahanUser', JSON.stringify({ nama, nik }));
+      loginCard.classList.add('hidden');
+      dashboard.classList.remove('hidden');
+      document.getElementById('masyarakat-welcome').textContent = `Selamat datang, ${nama}`;
+      document.getElementById('masyarakat-info').textContent = `NIK: ${nik}`;
+    } else {
+      alert('Nama atau NIK tidak terdaftar.');
+    }
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    localStorage.setItem('desaWayIlahanMasyarakat', 'false');
+    localStorage.removeItem('desaWayIlahanUser');
+    loginCard.classList.remove('hidden');
+    dashboard.classList.add('hidden');
+    loginForm.reset();
+  });
 }
 
 window.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'public') {
     renderPublicPage();
+    const menuToggle = document.getElementById('menu-toggle');
+    const navLinks = document.getElementById('nav-links');
+    if (menuToggle && navLinks) {
+      menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+      });
+      navLinks.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => navLinks.classList.remove('open'));
+      });
+    }
   }
   if (document.body.dataset.page === 'admin') {
     setupAdminPage();
+  }
+  if (document.body.dataset.page === 'kelola-penduduk') {
+    setupPendudukPage();
+  }
+  if (document.body.dataset.page === 'kelola-berita') {
+    setupBeritaPage();
+  }
+  if (document.body.dataset.page === 'masyarakat') {
+    setupMasyarakatPage();
   }
 });

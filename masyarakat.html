@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login Masyarakat Desa Way Ilahan</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="masyarakat">
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html">
+          <strong>Desa Way Ilahan</strong>
+          <span>Portal Masyarakat</span>
+        </a>
+        <a class="btn btn-outline" href="index.html">Kembali ke Beranda</a>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div id="masyarakat-login-card" class="card auth-card">
+          <h2>Login Masyarakat</h2>
+          <p>Masukkan nama asli dan NIK yang terdaftar di desa untuk mengakses informasi publik.</p>
+          <form id="masyarakat-login-form" class="contact-form">
+            <input id="masyarakat-nama" type="text" placeholder="Nama Asli" required />
+            <input id="masyarakat-nik" type="text" placeholder="NIK" required />
+            <button class="btn btn-primary" type="submit">Masuk</button>
+          </form>
+          <p class="hint">Contoh akun: Nama Asli = Ahmad Saputra, NIK = 1801010101010001</p>
+        </div>
+
+        <div id="masyarakat-dashboard" class="card admin-card hidden">
+          <div class="dashboard-head">
+            <div>
+              <p class="eyebrow">Akun Masyarakat</p>
+              <h2 id="masyarakat-welcome">Selamat datang</h2>
+            </div>
+            <button id="masyarakat-logout" class="btn btn-outline" type="button">Logout</button>
+          </div>
+          <p id="masyarakat-info" class="hint"></p>
+          <div class="grid-2">
+            <div class="card">
+              <h3>Informasi Publik Desa</h3>
+              <ul class="list">
+                <li>Data penduduk dan wilayah desa dapat dilihat di halaman publik.</li>
+                <li>Informasi keuangan desa disajikan secara transparan.</li>
+                <li>Pengumuman dan berita desa selalu diperbarui.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Hak Akses</h3>
+              <ul class="list">
+                <li>Hanya dapat melihat dan mengunduh informasi publik.</li>
+                <li>Tidak dapat mengubah data desa.</li>
+                <li>Pengaduan dapat disampaikan melalui halaman kontak.</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

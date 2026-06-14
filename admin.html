@@ -21,7 +21,7 @@
       <div class="container">
         <div id="login-card" class="card auth-card">
           <h2>Login Admin</h2>
-          <p>Gunakan akun administrator untuk mengelola konten website.</p>
+          <p>Gunakan akun administrator untuk mengelola isi website resmi Desa Way Ilahan.</p>
           <form id="login-form" class="contact-form">
             <input id="username" type="text" placeholder="Username" required />
             <input id="password" type="password" placeholder="Password" required />
@@ -30,16 +30,72 @@
           <p class="hint">Username: desa<br />Password: wayilahan</p>
         </div>
 
-        <div id="dashboard-card" class="card admin-card hidden">
-          <div class="dashboard-head">
-            <div>
-              <p class="eyebrow">Dashboard Admin</p>
-              <h2>Kelola konten website desa</h2>
-            </div>
-            <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
-          </div>
+        <div id="dashboard-card" class="card admin-card hidden dashboard-shell">
+          <div class="dashboard-layout">
+            <aside class="sidebar">
+              <h3>Menu Admin</h3>
+              <a href="#content">Konten Website</a>
+              <a href="kelola-penduduk.html">Data Penduduk</a>
+              <a href="kelola-berita.html">Berita & Pengumuman</a>
+              <a href="#activity">Log Aktivitas</a>
+              <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+            </aside>
+            <div class="dashboard-main">
+              <div class="dashboard-head">
+                <div>
+                  <p class="eyebrow">Dashboard Admin</p>
+                  <h2>Kelola konten website desa</h2>
+                </div>
+              </div>
 
-          <form id="admin-form" class="admin-form">
+              <div class="dashboard-preview">
+                <img src="assets/admin-dashboard.svg" alt="Dashboard Admin Desa Way Ilahan" />
+              </div>
+
+              <div class="dashboard-summary">
+                <div class="summary-card">
+                  <strong>12</strong>
+                  <span>Notifikasi Baru</span>
+                </div>
+                <div class="summary-card">
+                  <strong>8</strong>
+                  <span>Aktivitas Hari Ini</span>
+                </div>
+                <div class="summary-card">
+                  <strong>3</strong>
+                  <span>Data Perlu Review</span>
+                </div>
+              </div>
+
+              <div id="activity" class="activity-card">
+                <h3>Log Aktivitas Terbaru</h3>
+                <ul class="list">
+                  <li>Admin memperbarui data keuangan desa.</li>
+                  <li>Admin menambahkan pengumuman terbaru.</li>
+                  <li>Admin mengubah daftar aparat desa.</li>
+                </ul>
+              </div>
+
+              <div class="grid-2">
+                <div class="activity-card">
+                  <h3>Pengaduan Masuk</h3>
+                  <ul class="list">
+                    <li>Pengaduan jalan rusak — menunggu tindak lanjut</li>
+                    <li>Permohonan informasi APBDes — sudah dibalas</li>
+                    <li>Saran layanan administrasi — dalam proses</li>
+                  </ul>
+                </div>
+                <div class="activity-card">
+                  <h3>Status Publikasi</h3>
+                  <ul class="list">
+                    <li>Berita utama: Terbit</li>
+                    <li>Dokumen publik: Terbit</li>
+                    <li>Pengumuman: Terbit</li>
+                  </ul>
+                </div>
+              </div>
+
+              <form id="admin-form" class="admin-form">
             <div class="grid-2">
               <label>
                 Nama Desa
@@ -109,6 +165,27 @@
               Kontak / Pengaduan
               <textarea id="contact" rows="3"></textarea>
             </label>
+
+            <div class="grid-2">
+              <div class="card">
+                <h3>Kelola Aparat Desa</h3>
+                <p class="hint">Masukkan satu aparat per baris dengan format: Nama | Jabatan</p>
+                <textarea id="aparatInput" rows="6"></textarea>
+                <div class="preview-list">
+                  <strong>Pratinjau Aparat</strong>
+                  <ul id="aparat-preview" class="list"></ul>
+                </div>
+              </div>
+              <div class="card">
+                <h3>Kelola Akun Masyarakat</h3>
+                <p class="hint">Masukkan satu akun per baris dengan format: Nama Asli | NIK</p>
+                <textarea id="masyarakatInput" rows="6"></textarea>
+                <div class="preview-list">
+                  <strong>Pratinjau Akun</strong>
+                  <ul id="masyarakat-preview" class="list"></ul>
+                </div>
+              </div>
+            </div>
 
             <div class="dashboard-actions">
               <button class="btn btn-primary" type="submit">Simpan Perubahan</button>

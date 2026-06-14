@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Berita & Pengumuman</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="kelola-berita">
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html">
+          <strong>Desa Way Ilahan</strong>
+          <span>Kelola Berita</span>
+        </a>
+        <a class="btn btn-outline" href="admin.html">Kembali</a>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>Kelola berita dan pengumuman</h2>
+          </div>
+        </div>
+        <div class="card">
+          <form id="berita-form" class="contact-form">
+            <input id="berita-id" type="hidden" />
+            <label>
+              Judul Berita
+              <input id="berita-title" type="text" placeholder="Contoh: Pelatihan UMKM Desa" required />
+            </label>
+            <label>
+              Isi Ringkas
+              <textarea id="berita-desc" rows="4" placeholder="Tuliskan ringkasan berita..."></textarea>
+            </label>
+            <label>
+              Status Publikasi
+              <select id="berita-status">
+                <option value="Terbit">Terbit</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </label>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Simpan</button>
+              <button class="btn btn-outline" id="reset-berita-form" type="button">Batal</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card mt-24">
+          <h3>Daftar Publikasi</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Judul</th>
+                <th>Ringkasan</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="berita-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

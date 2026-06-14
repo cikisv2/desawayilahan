@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kelola Data Penduduk</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="kelola-penduduk">
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html">
+          <strong>Desa Way Ilahan</strong>
+          <span>Kelola Penduduk</span>
+        </a>
+        <a class="btn btn-outline" href="admin.html">Kembali</a>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Admin</p>
+            <h2>Tambah dan edit data penduduk</h2>
+          </div>
+        </div>
+        <div class="card">
+          <img src="assets/people.svg" alt="Ilustrasi penduduk" />
+          <form id="penduduk-form" class="contact-form">
+            <input id="penduduk-id" type="hidden" />
+            <div class="form-grid">
+              <label>
+                Nama Lengkap
+                <input id="penduduk-nama" type="text" placeholder="Contoh: Ahmad Saputra" required />
+              </label>
+              <label>
+                Dusun
+                <input id="penduduk-dusun" type="text" placeholder="Contoh: Dusun I" required />
+              </label>
+            </div>
+            <div class="form-grid">
+              <label>
+                RT/RW
+                <input id="penduduk-rt-rw" type="text" placeholder="Contoh: 001/001" required />
+              </label>
+              <label>
+                Status
+                <select id="penduduk-status">
+                  <option value="Aktif">Aktif</option>
+                  <option value="Tidak Aktif">Tidak Aktif</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Simpan Data</button>
+              <button class="btn btn-outline" id="reset-penduduk-form" type="button">Batal</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="card mt-24">
+          <h3>Daftar Penduduk</h3>
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Nama</th>
+                <th>Dusun</th>
+                <th>RT/RW</th>
+                <th>Status</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="penduduk-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>

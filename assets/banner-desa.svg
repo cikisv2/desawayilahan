@@ -1,0 +1,11 @@
+<svg width="1200" height="360" viewBox="0 0 1200 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="360" rx="32" fill="#0F766E"/>
+  <rect x="56" y="56" width="1088" height="248" rx="24" fill="#F0FDF9" fill-opacity="0.95"/>
+  <path d="M180 236L600 120L1020 236V304H180V236Z" fill="#0F766E"/>
+  <path d="M316 304V182H478V304" stroke="#0F766E" stroke-width="18" stroke-linejoin="round"/>
+  <path d="M720 304V200H932V304" stroke="#0F766E" stroke-width="18" stroke-linejoin="round"/>
+  <circle cx="600" cy="136" r="74" fill="#FBBF24"/>
+  <path d="M548 146C560 122 640 122 652 146" stroke="#0F766E" stroke-width="12" stroke-linecap="round"/>
+  <path d="M560 168H640" stroke="#0F766E" stroke-width="12" stroke-linecap="round"/>
+  <text x="600" y="292" text-anchor="middle" fill="#0F766E" font-family="Arial, sans-serif" font-size="38" font-weight="700">PEMERINTAH DESA WAY ILAHAN</text>
+</svg>
