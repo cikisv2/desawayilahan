@@ -166,6 +166,24 @@
               <textarea id="contact" rows="3"></textarea>
             </label>
 
+            <label>
+              Unggah Foto Desa / Kegiatan
+              <input id="heroImageInput" type="file" accept="image/*" />
+            </label>
+            <div class="card">
+              <h3>Pratinjau Foto</h3>
+              <img id="hero-image-preview" class="image-preview" src="assets/banner-desa.svg" alt="Pratinjau gambar desa" />
+            </div>
+
+            <label>
+              Tambah Galeri Foto (bisa lebih dari satu)
+              <input id="galleryImageInput" type="file" accept="image/*" multiple />
+            </label>
+            <div class="card">
+              <h3>Galeri Foto Saat Ini</h3>
+              <div id="gallery-preview-list" class="gallery-admin-grid"></div>
+            </div>
+
             <div class="grid-2">
               <div class="card">
                 <h3>Kelola Aparat Desa</h3>

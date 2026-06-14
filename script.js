@@ -13,6 +13,8 @@ const DEFAULT_DATA = {
   realisasi: 'Rp 1.620.000.000',
   pengumuman: 'Pengumuman: Semua informasi publik desa dapat diakses secara terbuka melalui website ini untuk mendukung transparansi dan akuntabilitas.',
   contact: 'Alamat: Jalan Desa Way Ilahan, Kecamatan Pulau Panggung, Tanggamus. Telepon: 0721-123456. Email: desa.wayilahan@gmail.com',
+  heroImage: '',
+  updatedAt: new Date().toISOString(),
   penduduk: [
     'Laki-Laki: 2.120 Jiwa',
     'Perempuan: 2.130 Jiwa',
@@ -73,9 +75,9 @@ const DEFAULT_DATA = {
     }
   ],
   gallery: [
-    { title: 'Gotong Royong', desc: 'Kegiatan kerja bakti bersama warga desa.' },
-    { title: 'Pembangunan Jalan', desc: 'Perbaikan akses jalan lingkungan desa.' },
-    { title: 'Kegiatan Posyandu', desc: 'Pelayanan kesehatan masyarakat secara rutin.' }
+    { id: 'gallery-1', title: 'Gotong Royong', desc: 'Kegiatan kerja bakti bersama warga desa.', image: '' },
+    { id: 'gallery-2', title: 'Pembangunan Jalan', desc: 'Perbaikan akses jalan lingkungan desa.', image: '' },
+    { id: 'gallery-3', title: 'Kegiatan Posyandu', desc: 'Pelayanan kesehatan masyarakat secara rutin.', image: '' }
   ]
 };
 
@@ -89,7 +91,8 @@ function loadData() {
 }
 
 function saveData(data) {
-  localStorage.setItem('desaWayIlahanData', JSON.stringify(data));
+  const payload = { ...data, updatedAt: new Date().toISOString() };
+  localStorage.setItem('desaWayIlahanData', JSON.stringify(payload));
 }
 
 function safeReadJson(key, fallback) {
@@ -108,6 +111,21 @@ function escapeHtml(value) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#39;');
+}
+
+function normalizeGalleryItems(data) {
+  const rawItems = Array.isArray(data.gallery) ? data.gallery : [];
+  return rawItems.map((item, index) => {
+    if (typeof item === 'string') {
+      return { id: `gallery-${index + 1}`, title: item, desc: '', image: '' };
+    }
+    return {
+      id: item.id || `gallery-${index + 1}`,
+      title: item.title || '',
+      desc: item.desc || '',
+      image: item.image || ''
+    };
+  });
 }
 
 function normalizePendudukRecords(data) {
@@ -175,15 +193,21 @@ function renderPublicPage() {
       <p>${escapeHtml(item.desc)}</p>
     </article>
   `).join('');
-  document.getElementById('gallery-list').innerHTML = data.gallery.map(item => `
+  const galleryItems = normalizeGalleryItems(data);
+  document.getElementById('gallery-list').innerHTML = galleryItems.map(item => `
     <article class="gallery-item">
-      <div class="thumb"></div>
+      <div class="thumb">${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" />` : ''}</div>
       <div class="content">
-        <h3>${item.title}</h3>
-        <p>${item.desc}</p>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.desc)}</p>
       </div>
     </article>
   `).join('');
+  const bannerImage = document.getElementById('public-banner-image');
+  if (bannerImage) {
+    bannerImage.src = data.heroImage || 'assets/banner-desa.svg';
+    bannerImage.alt = `Foto ${data.desaName}`;
+  }
   document.getElementById('contact-text').textContent = data.contact;
   document.getElementById('footer-year').textContent = new Date().getFullYear();
 }
@@ -215,6 +239,15 @@ function getMasyarakatSession() {
   return safeReadJson('desaWayIlahanUser', null);
 }
 
+function readFileAsDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = () => reject(reader.error);
+    reader.readAsDataURL(file);
+  });
+}
+
 function setupAdminPage() {
   const loginCard = document.getElementById('login-card');
   const dashboardCard = document.getElementById('dashboard-card');
@@ -223,6 +256,10 @@ function setupAdminPage() {
   const logoutBtn = document.getElementById('logout-btn');
   const aparatInput = document.getElementById('aparatInput');
   const masyarakatInput = document.getElementById('masyarakatInput');
+  const heroImageInput = document.getElementById('heroImageInput');
+  const heroImagePreview = document.getElementById('hero-image-preview');
+  const galleryImageInput = document.getElementById('galleryImageInput');
+  const galleryPreviewList = document.getElementById('gallery-preview-list');
   const aparatPreview = document.getElementById('aparat-preview');
   const masyarakatPreview = document.getElementById('masyarakat-preview');
 
@@ -255,6 +292,57 @@ function setupAdminPage() {
     loginForm.reset();
   });
 
+  if (heroImageInput) {
+    heroImageInput.addEventListener('change', async (event) => {
+      const file = event.target.files && event.target.files[0];
+      if (!file) return;
+      const imageData = await readFileAsDataURL(file);
+      const data = loadData();
+      data.heroImage = imageData;
+      saveData(data);
+      if (heroImagePreview) {
+        heroImagePreview.src = imageData;
+      }
+      renderPublicPage();
+      renderMasyarakatDashboard();
+    });
+  }
+
+  if (galleryImageInput) {
+    galleryImageInput.addEventListener('change', async (event) => {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      const data = loadData();
+      const gallery = normalizeGalleryItems(data);
+      const imageDataList = await Promise.all(files.map(file => readFileAsDataURL(file)));
+      const newItems = imageDataList.map((imageData, index) => ({
+        id: `gallery-${Date.now()}-${index}`,
+        title: `Foto ${gallery.length + index + 1}`,
+        desc: 'Foto unggahan admin',
+        image: imageData
+      }));
+      data.gallery = [...gallery, ...newItems];
+      saveData(data);
+      renderGalleryAdminPreview(data);
+      renderPublicPage();
+      renderMasyarakatDashboard();
+    });
+  }
+
+  if (galleryPreviewList) {
+    galleryPreviewList.addEventListener('click', (event) => {
+      const deleteBtn = event.target.closest('[data-remove-gallery-id]');
+      if (!deleteBtn) return;
+      const data = loadData();
+      const gallery = normalizeGalleryItems(data).filter(item => item.id !== deleteBtn.getAttribute('data-remove-gallery-id'));
+      data.gallery = gallery;
+      saveData(data);
+      renderGalleryAdminPreview(data);
+      renderPublicPage();
+      renderMasyarakatDashboard();
+    });
+  }
+
   adminForm.addEventListener('submit', (event) => {
     event.preventDefault();
     const data = loadData();
@@ -276,6 +364,7 @@ function setupAdminPage() {
     saveData(data);
     alert('Perubahan berhasil disimpan.');
     renderPublicPage();
+    renderMasyarakatDashboard();
   });
 
   if (isAdminLoggedIn()) {
@@ -300,6 +389,11 @@ function populateAdminForm() {
   document.getElementById('contact').value = data.contact;
   document.getElementById('aparatInput').value = (data.aparatur || []).join('\n');
   document.getElementById('masyarakatInput').value = (data.masyarakat || []).join('\n');
+  const heroImagePreview = document.getElementById('hero-image-preview');
+  if (heroImagePreview) {
+    heroImagePreview.src = data.heroImage || 'assets/banner-desa.svg';
+  }
+  renderGalleryAdminPreview(data);
   updateListPreviews(data);
 }
 
@@ -312,6 +406,26 @@ function updateListPreviews(data) {
   if (masyarakatPreview) {
     masyarakatPreview.innerHTML = (data.masyarakat || []).map(item => `<li>${item}</li>`).join('');
   }
+}
+
+function renderGalleryAdminPreview(data) {
+  const galleryPreviewList = document.getElementById('gallery-preview-list');
+  if (!galleryPreviewList) return;
+  const galleryItems = normalizeGalleryItems(data);
+  if (!galleryItems.length) {
+    galleryPreviewList.innerHTML = '<p class="hint">Belum ada foto galeri.</p>';
+    return;
+  }
+  galleryPreviewList.innerHTML = galleryItems.map(item => `
+    <div class="gallery-admin-item">
+      <img src="${item.image || 'assets/banner-desa.svg'}" alt="${escapeHtml(item.title)}" />
+      <div>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.desc)}</p>
+      </div>
+      <button class="btn btn-outline btn-sm" type="button" data-remove-gallery-id="${item.id}">Hapus</button>
+    </div>
+  `).join('');
 }
 
 function setupPendudukPage() {
@@ -525,6 +639,66 @@ function setupBeritaPage() {
   renderBeritaTable();
 }
 
+function renderMasyarakatDashboard() {
+  const dashboard = document.getElementById('masyarakat-dashboard');
+  if (!dashboard) return;
+  const currentUser = getMasyarakatSession();
+  if (!currentUser) return;
+
+  const data = loadData();
+  document.getElementById('masyarakat-welcome').textContent = `Selamat datang, ${currentUser.nama}`;
+  document.getElementById('masyarakat-info').textContent = `NIK: ${currentUser.nik} • Data berikut diperbarui langsung dari admin desa`;
+
+  const statsContainer = document.getElementById('masyarakat-stats');
+  if (statsContainer) {
+    statsContainer.innerHTML = `
+      <article class="stat-card small-card">
+        <h3>${escapeHtml(data.totalPenduduk)}</h3>
+        <p>Penduduk</p>
+      </article>
+      <article class="stat-card small-card">
+        <h3>${escapeHtml(data.dusunCount)}</h3>
+        <p>Dusun</p>
+      </article>
+      <article class="stat-card small-card">
+        <h3>${escapeHtml(data.anggaran)}</h3>
+        <p>Anggaran</p>
+      </article>
+      <article class="stat-card small-card">
+        <h3>${escapeHtml(data.realisasi)}</h3>
+        <p>Realisasi</p>
+      </article>
+    `;
+  }
+
+  const liveData = document.getElementById('masyarakat-live-data');
+  if (liveData) {
+    const publishedNews = normalizeBeritaItems(data).filter(item => item.status === 'Terbit').slice(0, 3);
+    liveData.innerHTML = [
+      `<li><strong>Berita Terbit:</strong> ${publishedNews.length}</li>`,
+      `<li><strong>Data Penduduk:</strong> ${normalizePendudukRecords(data).length} record</li>`,
+      `<li><strong>Pengumuman:</strong> ${escapeHtml(data.pengumuman)}</li>`
+    ].map(item => `<li>${item}</li>`).join('');
+  }
+
+  const statusBadge = document.getElementById('masyarakat-status-badge');
+  if (statusBadge) {
+    const updatedTime = data.updatedAt ? new Date(data.updatedAt).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : 'baru saja';
+    statusBadge.innerHTML = `<span class="status-pill status-published">Data terbaru • ${escapeHtml(updatedTime)}</span>`;
+  }
+
+  const image = document.getElementById('masyarakat-hero-image');
+  if (image) {
+    image.src = data.heroImage || 'assets/banner-desa.svg';
+    image.alt = `Foto ${data.desaName}`;
+  }
+
+  const imageCaption = document.getElementById('masyarakat-image-caption');
+  if (imageCaption) {
+    imageCaption.textContent = data.pengumuman || 'Foto desa yang diunggah melalui admin';
+  }
+}
+
 function setupMasyarakatPage() {
   const loginForm = document.getElementById('masyarakat-login-form');
   const loginCard = document.getElementById('masyarakat-login-card');
@@ -534,11 +708,7 @@ function setupMasyarakatPage() {
   if (localStorage.getItem('desaWayIlahanMasyarakat') === 'true') {
     loginCard.classList.add('hidden');
     dashboard.classList.remove('hidden');
-    const currentUser = getMasyarakatSession();
-    if (currentUser) {
-      document.getElementById('masyarakat-welcome').textContent = `Selamat datang, ${currentUser.nama}`;
-      document.getElementById('masyarakat-info').textContent = `NIK: ${currentUser.nik}`;
-    }
+    renderMasyarakatDashboard();
   }
 
   loginForm.addEventListener('submit', (event) => {
@@ -556,8 +726,7 @@ function setupMasyarakatPage() {
       localStorage.setItem('desaWayIlahanUser', JSON.stringify({ nama, nik }));
       loginCard.classList.add('hidden');
       dashboard.classList.remove('hidden');
-      document.getElementById('masyarakat-welcome').textContent = `Selamat datang, ${nama}`;
-      document.getElementById('masyarakat-info').textContent = `NIK: ${nik}`;
+      renderMasyarakatDashboard();
     } else {
       alert('Nama atau NIK tidak terdaftar.');
     }
@@ -571,6 +740,13 @@ function setupMasyarakatPage() {
     loginForm.reset();
   });
 }
+
+window.addEventListener('storage', (event) => {
+  if (event.key === 'desaWayIlahanData') {
+    renderPublicPage();
+    renderMasyarakatDashboard();
+  }
+});
 
 window.addEventListener('DOMContentLoaded', () => {
   if (document.body.dataset.page === 'public') {
