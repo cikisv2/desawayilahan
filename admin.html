@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Desa Way Ilahan</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body data-page="admin">
+    <header class="topbar">
+      <div class="container nav-wrap">
+        <a class="brand" href="index.html">
+          <strong>Desa Way Ilahan</strong>
+          <span>Panel Admin</span>
+        </a>
+        <a class="btn btn-outline" href="index.html">Lihat Website</a>
+      </div>
+    </header>
+
+    <main class="section">
+      <div class="container">
+        <div id="login-card" class="card auth-card">
+          <h2>Login Admin</h2>
+          <p>Gunakan akun administrator untuk mengelola konten website.</p>
+          <form id="login-form" class="contact-form">
+            <input id="username" type="text" placeholder="Username" required />
+            <input id="password" type="password" placeholder="Password" required />
+            <button class="btn btn-primary" type="submit">Masuk</button>
+          </form>
+          <p class="hint">Username: desa<br />Password: wayilahan</p>
+        </div>
+
+        <div id="dashboard-card" class="card admin-card hidden">
+          <div class="dashboard-head">
+            <div>
+              <p class="eyebrow">Dashboard Admin</p>
+              <h2>Kelola konten website desa</h2>
+            </div>
+            <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+          </div>
+
+          <form id="admin-form" class="admin-form">
+            <div class="grid-2">
+              <label>
+                Nama Desa
+                <input id="desaName" type="text" />
+              </label>
+              <label>
+                Slogan / Tagline
+                <input id="tagline" type="text" />
+              </label>
+            </div>
+
+            <label>
+              Deskripsi Desa
+              <textarea id="profile" rows="4"></textarea>
+            </label>
+
+            <div class="grid-2">
+              <label>
+                Visi
+                <textarea id="visi" rows="3"></textarea>
+              </label>
+              <label>
+                Misi
+                <textarea id="misi" rows="3"></textarea>
+              </label>
+            </div>
+
+            <div class="grid-2">
+              <label>
+                Jumlah Penduduk
+                <input id="totalPenduduk" type="text" />
+              </label>
+              <label>
+                Kepala Desa
+                <input id="kepalaDesa" type="text" />
+              </label>
+            </div>
+
+            <div class="grid-2">
+              <label>
+                Jumlah Dusun
+                <input id="dusunCount" type="text" />
+              </label>
+              <label>
+                Jumlah RW / RT
+                <input id="rwRt" type="text" />
+              </label>
+            </div>
+
+            <div class="grid-2">
+              <label>
+                Anggaran APBDes
+                <input id="anggaran" type="text" />
+              </label>
+              <label>
+                Realisasi
+                <input id="realisasi" type="text" />
+              </label>
+            </div>
+
+            <label>
+              Pengumuman Terbaru
+              <textarea id="pengumuman" rows="3"></textarea>
+            </label>
+
+            <label>
+              Kontak / Pengaduan
+              <textarea id="contact" rows="3"></textarea>
+            </label>
+
+            <div class="dashboard-actions">
+              <button class="btn btn-primary" type="submit">Simpan Perubahan</button>
+              <a class="btn btn-secondary" href="index.html">Lihat Tampilan Publik</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
