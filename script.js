@@ -123,7 +123,8 @@ function normalizeGalleryItems(data) {
       id: item.id || `gallery-${index + 1}`,
       title: item.title || '',
       desc: item.desc || '',
-      image: item.image || ''
+      image: item.image || '',
+      link: item.link || ''
     };
   });
 }
@@ -154,9 +155,31 @@ function normalizeBeritaItems(data) {
       id: item.id || `berita-${index + 1}`,
       title: item.title || '',
       desc: item.desc || '',
-      status: item.status || 'Terbit'
+      status: item.status || 'Terbit',
+      link: item.link || ''
     };
   });
+}
+
+function renderBeritaPage() {
+  const container = document.getElementById('berita-page-list');
+  if (!container) return;
+
+  const data = loadData();
+  const publishedNews = normalizeBeritaItems(data).filter(item => item.status === 'Terbit');
+
+  if (!publishedNews.length) {
+    container.innerHTML = '<div class="card"><p class="hint">Belum ada berita yang dipublikasikan.</p></div>';
+    return;
+  }
+
+  container.innerHTML = publishedNews.map(item => `
+    <article class="card news-card">
+      <h3>${escapeHtml(item.title)}</h3>
+      <p>${escapeHtml(item.desc)}</p>
+      ${item.link ? `<a class="btn btn-outline btn-sm" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">Buka tautan</a>` : '<a class="btn btn-secondary btn-sm" href="berita-detail.html">Lihat detail</a>'}
+    </article>
+  `).join('');
 }
 
 function renderPublicPage() {
@@ -188,18 +211,30 @@ function renderPublicPage() {
   document.getElementById('keuangan-list').innerHTML = data.keuangan.map(item => `<li>${item}</li>`).join('');
   const publishedNews = normalizeBeritaItems(data).filter(item => item.status === 'Terbit');
   document.getElementById('berita-list').innerHTML = publishedNews.map(item => `
-    <article class="card">
+    <article class="card news-card">
       <h3>${escapeHtml(item.title)}</h3>
       <p>${escapeHtml(item.desc)}</p>
+      ${item.link ? `<a class="btn btn-outline btn-sm" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">Buka tautan</a>` : ''}
     </article>
   `).join('');
   const galleryItems = normalizeGalleryItems(data);
-  document.getElementById('gallery-list').innerHTML = galleryItems.map(item => `
+  document.getElementById('gallery-list').innerHTML = galleryItems.map((item, index) => `
     <article class="gallery-item">
       <div class="thumb">${item.image ? `<img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.title)}" />` : ''}</div>
       <div class="content">
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.desc)}</p>
+        ${index === 0 ? `
+          <div class="quick-links">
+            <a href="#profil">Profil</a>
+            <a href="#data">Data</a>
+            <a href="#keuangan">Keuangan</a>
+            <a href="statistik.html">Statistik</a>
+            <a href="berita.html">Berita</a>
+            <a href="#kontak">Kontak</a>
+          </div>
+        ` : ''}
+        ${item.link ? `<a class="gallery-link" href="${escapeHtml(item.link)}" target="_blank" rel="noopener">Buka tautan</a>` : ''}
       </div>
     </article>
   `).join('');
@@ -259,6 +294,7 @@ function setupAdminPage() {
   const heroImageInput = document.getElementById('heroImageInput');
   const heroImagePreview = document.getElementById('hero-image-preview');
   const galleryImageInput = document.getElementById('galleryImageInput');
+  const galleryLinkInput = document.getElementById('galleryLinkInput');
   const galleryPreviewList = document.getElementById('gallery-preview-list');
   const aparatPreview = document.getElementById('aparat-preview');
   const masyarakatPreview = document.getElementById('masyarakat-preview');
@@ -319,10 +355,14 @@ function setupAdminPage() {
         id: `gallery-${Date.now()}-${index}`,
         title: `Foto ${gallery.length + index + 1}`,
         desc: 'Foto unggahan admin',
-        image: imageData
+        image: imageData,
+        link: galleryLinkInput ? galleryLinkInput.value.trim() : ''
       }));
       data.gallery = [...gallery, ...newItems];
       saveData(data);
+      if (galleryLinkInput) {
+        galleryLinkInput.value = '';
+      }
       renderGalleryAdminPreview(data);
       renderPublicPage();
       renderMasyarakatDashboard();
@@ -538,6 +578,7 @@ function setupBeritaPage() {
   const form = document.getElementById('berita-form');
   const titleInput = document.getElementById('berita-title');
   const descInput = document.getElementById('berita-desc');
+  const linkInput = document.getElementById('berita-link');
   const statusInput = document.getElementById('berita-status');
   const idInput = document.getElementById('berita-id');
   const tableBody = document.getElementById('berita-table-body');
@@ -559,7 +600,7 @@ function setupBeritaPage() {
     tableBody.innerHTML = items.map(item => `
       <tr>
         <td>${escapeHtml(item.title)}</td>
-        <td>${escapeHtml(item.desc)}</td>
+        <td>${escapeHtml(item.desc)}${item.link ? `<br><small>${escapeHtml(item.link)}</small>` : ''}</td>
         <td><span class="status-pill ${item.status === 'Terbit' ? 'status-published' : 'status-draft'}">${escapeHtml(item.status)}</span></td>
         <td>
           <button class="btn btn-outline btn-sm" type="button" data-toggle-id="${item.id}">${item.status === 'Terbit' ? 'Jadikan Draft' : 'Terbitkan'}</button>
@@ -584,7 +625,8 @@ function setupBeritaPage() {
       id: editingId || `berita-${Date.now()}`,
       title: titleInput.value.trim(),
       desc: descInput.value.trim(),
-      status: statusInput.value.trim()
+      status: statusInput.value.trim(),
+      link: linkInput ? linkInput.value.trim() : ''
     };
 
     if (!payload.title) {
@@ -630,6 +672,7 @@ function setupBeritaPage() {
         idInput.value = item.id;
         titleInput.value = item.title;
         descInput.value = item.desc;
+        linkInput.value = item.link || '';
         statusInput.value = item.status;
       }
     }
@@ -679,6 +722,11 @@ function renderMasyarakatDashboard() {
       `<li><strong>Data Penduduk:</strong> ${normalizePendudukRecords(data).length} record</li>`,
       `<li><strong>Pengumuman:</strong> ${escapeHtml(data.pengumuman)}</li>`
     ].map(item => `<li>${item}</li>`).join('');
+    if (publishedNews.length) {
+      liveData.innerHTML += publishedNews.map(item => `
+        <li><a class="gallery-link" href="${escapeHtml(item.link || 'berita.html')}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a></li>
+      `).join('');
+    }
   }
 
   const statusBadge = document.getElementById('masyarakat-status-badge');
@@ -761,6 +809,9 @@ window.addEventListener('DOMContentLoaded', () => {
         link.addEventListener('click', () => navLinks.classList.remove('open'));
       });
     }
+  }
+  if (document.body.dataset.page === 'berita') {
+    renderBeritaPage();
   }
   if (document.body.dataset.page === 'admin') {
     setupAdminPage();
