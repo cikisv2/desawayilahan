@@ -294,6 +294,42 @@ textarea { resize: vertical; }
 .dashboard-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; }
 .preview-list { margin-top: 0.8rem; }
 .preview-list strong { display: block; margin-bottom: 0.4rem; }
+.checkline {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 0.2rem 0.1rem;
+}
+.checkline span {
+  color: var(--muted);
+  font-weight: 600;
+  font-size: 0.92rem;
+}
+
+.preview-list .pengaduan-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding: 0.9rem 0;
+  border-bottom: 1px solid var(--border);
+}
+.preview-list .pengaduan-row:last-child {
+  border-bottom: 0;
+}
+
+.status-pill.status-waiting {
+  background: #e0f2fe;
+  color: #075985;
+}
+.status-pill.status-processing {
+  background: #fef3c7;
+  color: #92400e;
+}
+.status-pill.status-done {
+  background: #dcfce7;
+  color: #166534;
+}
+
 .hidden { display: none; }
 .hint { color: var(--muted); margin-top: 0.8rem; }
 .mt-24 { margin-top: 1.5rem; }

@@ -22,24 +22,107 @@
         <div class="card">
           <p class="eyebrow">Layanan Aspirasi</p>
           <h2>Ajukan pengaduan atau saran</h2>
-          <p>Pengaduan warga akan diterima dan ditindaklanjuti oleh perangkat desa sesuai prosedur pelayanan publik.</p>
+          <p>
+            Pengaduan warga akan diterima dan ditindaklanjuti oleh perangkat desa sesuai prosedur pelayanan publik.
+            Semua pengaduan yang masuk akan ditampilkan secara transparan (tanpa NIK).
+          </p>
           <ul class="list">
             <li>Pengaduan terkait infrastruktur dan pelayanan publik</li>
             <li>Permintaan informasi dan klarifikasi program desa</li>
             <li>Saran perbaikan layanan administrasi desa</li>
           </ul>
+
+          <div class="hint" style="margin-top: 0.75rem;">
+            Setelah pengaduan terkirim, Anda akan mendapatkan <strong>nomor tiket</strong>.
+            Status akan diperbarui oleh admin.
+          </div>
         </div>
+
         <div class="card">
           <h3>Form Pengaduan</h3>
-          <form class="contact-form">
-            <input type="text" placeholder="Nama Lengkap" required />
-            <input type="text" placeholder="Nomor KK / NIK" required />
-            <input type="text" placeholder="Subjek Pengaduan" required />
-            <textarea rows="4" placeholder="Jelaskan pengaduan atau saran Anda" required></textarea>
-            <button class="btn btn-primary" type="submit">Kirim Pengaduan</button>
+
+          <form id="pengaduan-form" class="contact-form">
+            <input id="pengaduan-nama" type="text" placeholder="Nama Lengkap" required />
+            <input
+              id="pengaduan-identitas"
+              type="text"
+              placeholder="Nomor KK / NIK"
+              required
+              inputmode="numeric"
+            />
+
+            <select id="pengaduan-kategori" required>
+              <option value="" selected disabled>Pilih Kategori</option>
+              <option value="Infrastruktur & Pelayanan">Infrastruktur & Pelayanan</option>
+              <option value="Informasi & Klarifikasi Program">Informasi & Klarifikasi Program</option>
+              <option value="Saran Perbaikan Administrasi">Saran Perbaikan Administrasi</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
+
+            <input id="pengaduan-subjek" type="text" placeholder="Subjek Pengaduan" required />
+
+            <textarea id="pengaduan-isi" rows="4" placeholder="Jelaskan pengaduan atau saran Anda" required></textarea>
+
+            <label class="checkline">
+              <input id="pengaduan-persetujuan" type="checkbox" required />
+              <span>Saya menyatakan informasi yang saya tulis benar dan dapat diproses sesuai ketentuan.</span>
+            </label>
+
+            <div class="form-actions">
+              <button class="btn btn-primary" type="submit">Kirim Pengaduan</button>
+              <button id="pengaduan-reset-btn" class="btn btn-outline" type="button">Reset</button>
+            </div>
           </form>
+
+          <div id="pengaduan-submit-result" class="hint hidden" style="margin-top: 1rem;"></div>
         </div>
       </div>
+
+      <section class="section alt-bg" style="padding-top: 0;">
+        <div class="container">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Transparansi</p>
+              <h2>Daftar Pengaduan Masuk</h2>
+            </div>
+          </div>
+
+          <div id="pengaduan-list-container" class="grid-2">
+            <div class="card">
+              <h3>Ringkasan</h3>
+              <ul class="list">
+                <li>
+                  Total pengaduan masuk:
+                  <strong id="pengaduan-total">0</strong>
+                </li>
+                <li>
+                  Menunggu tindak lanjut:
+                  <strong id="pengaduan-pending">0</strong>
+                </li>
+                <li>
+                  Sedang diproses:
+                  <strong id="pengaduan-processing">0</strong>
+                </li>
+                <li>
+                  Selesai:
+                  <strong id="pengaduan-done">0</strong>
+                </li>
+              </ul>
+            </div>
+
+            <div class="card">
+              <h3>Pengaduan terbaru</h3>
+              <div id="pengaduan-public-list" class="preview-list"></div>
+              <p id="pengaduan-public-empty" class="hint hidden">Belum ada pengaduan yang masuk.</p>
+              <div class="hint" style="margin-top: 1rem;">
+                Data yang ditampilkan di halaman publik hanya ringkasan pengaduan (tanpa NIK).
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
+
+    <script src="script.js"></script>
   </body>
 </html>

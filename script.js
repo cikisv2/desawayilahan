@@ -5,7 +5,7 @@ const DEFAULT_DATA = {
   profile: 'Desa Way Ilahan adalah desa yang senantiasa mengutamakan pelayanan, gotong royong, dan keterbukaan informasi bagi seluruh masyarakat. Website ini menjadi sarana publikasi data desa, keuangan, kegiatan, dan pengumuman resmi.',
   visi: 'Menjadi desa yang mandiri, sejahtera, dan berdaya saing dengan tata kelola pemerintah yang baik serta partisipasi masyarakat yang aktif.',
   misi: 'Meningkatkan kualitas pelayanan publik, memberdayakan ekonomi masyarakat, menjaga ketertiban, dan mengembangkan infrastruktur desa secara berkelanjutan.',
-  kepalaDesa: 'Bapak H. Surya',
+  kepalaDesa: 'Bapak duwi sugianto',
   totalPenduduk: '4.250 Jiwa',
   dusunCount: '4 Dusun',
   rwRt: '12 RW / 38 RT',
@@ -281,6 +281,163 @@ function readFileAsDataURL(file) {
     reader.onerror = () => reject(reader.error);
     reader.readAsDataURL(file);
   });
+}
+
+function setupPengaduanPage() {
+  const form = document.getElementById('pengaduan-form');
+  const resetBtn = document.getElementById('pengaduan-reset-btn');
+
+  const namaInput = document.getElementById('pengaduan-nama');
+  const identitasInput = document.getElementById('pengaduan-identitas');
+  const kategoriInput = document.getElementById('pengaduan-kategori');
+  const subjekInput = document.getElementById('pengaduan-subjek');
+  const isiInput = document.getElementById('pengaduan-isi');
+  const persetujuanInput = document.getElementById('pengaduan-persetujuan');
+
+  const submitResult = document.getElementById('pengaduan-submit-result');
+
+  const listContainer = document.getElementById('pengaduan-public-list');
+  const emptyState = document.getElementById('pengaduan-public-empty');
+  const totalEl = document.getElementById('pengaduan-total');
+  const pendingEl = document.getElementById('pengaduan-pending');
+  const processingEl = document.getElementById('pengaduan-processing');
+  const doneEl = document.getElementById('pengaduan-done');
+
+  function loadPengaduan() {
+    return safeReadJson('desaWayIlahanPengaduan', []);
+  }
+
+  function savePengaduan(items) {
+    localStorage.setItem('desaWayIlahanPengaduan', JSON.stringify(items));
+  }
+
+  function getStatusClass(status) {
+    if (status === 'Menunggu') return 'status-waiting';
+    if (status === 'Diproses') return 'status-processing';
+    if (status === 'Selesai') return 'status-done';
+    return '';
+  }
+
+  function getStatusLabel(status) {
+    if (status === 'Menunggu') return 'Menunggu';
+    if (status === 'Diproses') return 'Diproses';
+    if (status === 'Selesai') return 'Selesai';
+    return 'Menunggu';
+  }
+
+  function renderPublicList() {
+    if (!listContainer) return;
+
+    const items = Array.isArray(loadPengaduan()) ? loadPengaduan() : [];
+    const sorted = [...items].sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+
+    const counts = {
+      total: sorted.length,
+      pending: sorted.filter(i => i.status === 'Menunggu').length,
+      processing: sorted.filter(i => i.status === 'Diproses').length,
+      done: sorted.filter(i => i.status === 'Selesai').length
+    };
+
+    if (totalEl) totalEl.textContent = String(counts.total);
+    if (pendingEl) pendingEl.textContent = String(counts.pending);
+    if (processingEl) processingEl.textContent = String(counts.processing);
+    if (doneEl) doneEl.textContent = String(counts.done);
+
+    if (!sorted.length) {
+      if (emptyState) emptyState.classList.remove('hidden');
+      listContainer.innerHTML = '';
+      return;
+    }
+    if (emptyState) emptyState.classList.add('hidden');
+
+    listContainer.innerHTML = sorted
+      .slice(0, 6)
+      .map(item => {
+        const nama = escapeHtml(item.nama || '-');
+        const subjek = escapeHtml(item.subjek || '-');
+        const tiket = escapeHtml(item.tiket || '-');
+        const status = getStatusLabel(item.status);
+        const statusClass = getStatusClass(item.status);
+        const createdAt = item.createdAt ? new Date(item.createdAt).toLocaleString('id-ID') : '-';
+
+        return `
+          <div class="pengaduan-row">
+            <div style="display:flex; justify-content:space-between; gap: 1rem; align-items: baseline;">
+              <strong>${nama}</strong>
+              <span class="status-pill ${statusClass}">${escapeHtml(status)}</span>
+            </div>
+            <div style="color: var(--muted); font-weight: 600; margin-top: 0.1rem;">
+              Tiket: ${tiket} • ${escapeHtml(createdAt)}
+            </div>
+            <div style="margin-top: 0.2rem; font-weight: 700;">
+              ${subjek}
+            </div>
+          </div>
+        `;
+      })
+      .join('');
+  }
+
+  if (form) {
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const nama = (namaInput && namaInput.value || '').trim();
+      const identitas = (identitasInput && identitasInput.value || '').trim();
+      const kategori = (kategoriInput && kategoriInput.value || '').trim();
+      const subjek = (subjekInput && subjekInput.value || '').trim();
+      const isi = (isiInput && isiInput.value || '').trim();
+      const persetujuan = persetujuanInput && persetujuanInput.checked;
+
+      if (!nama || !identitas || !kategori || !subjek || !isi) {
+        alert('Lengkapi semua data pengaduan.');
+        return;
+      }
+      if (!persetujuan) {
+        alert('Silakan centang persetujuan sebelum mengirim.');
+        return;
+      }
+
+      const items = Array.isArray(loadPengaduan()) ? loadPengaduan() : [];
+      const tiket = `TIK-${String(Date.now()).slice(-8)}-${Math.floor(Math.random() * 1000)}`;
+
+      const payload = {
+        id: `pengaduan-${Date.now()}`,
+        tiket,
+        nama,
+        // identitas disimpan agar bisa dipakai admin jika dibutuhkan, tetapi tidak ditampilkan di publik
+        identitas,
+        kategori,
+        subjek,
+        isi,
+        status: 'Menunggu',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+
+      items.push(payload);
+      savePengaduan(items);
+
+      if (submitResult) {
+        submitResult.classList.remove('hidden');
+        submitResult.textContent = `Pengaduan terkirim. Nomor tiket Anda: ${tiket}. Status: Menunggu tindak lanjut.`;
+      }
+
+      if (form && typeof form.reset === 'function') form.reset();
+      if (submitResult) submitResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+      renderPublicList();
+    });
+  }
+
+  if (resetBtn) {
+    resetBtn.addEventListener('click', () => {
+      if (form && typeof form.reset === 'function') form.reset();
+      if (submitResult) submitResult.classList.add('hidden');
+    });
+  }
+
+  renderPublicList();
 }
 
 function setupAdminPage() {
