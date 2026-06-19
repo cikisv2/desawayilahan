@@ -8,12 +8,15 @@
   </head>
   <body data-page="admin">
     <header class="topbar">
-      <div class="container nav-wrap">
+      <div class="nav-wrap">
         <a class="brand" href="index.html">
           <strong>Desa Way Ilahan</strong>
           <span>Panel Admin</span>
         </a>
-        <a class="btn btn-outline" href="index.html">Lihat Website</a>
+        <div style="display: flex; gap: 0.8rem; align-items: center;">
+          <span id="admin-name" style="font-size: 0.95rem; color: var(--muted); font-weight: 500;"></span>
+          <a class="btn btn-outline" href="index.html" style="font-size: 0.9rem; padding: 0.6rem 1rem;">← Lihat Website</a>
+        </div>
       </div>
     </header>
 
@@ -33,69 +36,63 @@
         <div id="dashboard-card" class="card admin-card hidden dashboard-shell">
           <div class="dashboard-layout">
             <aside class="sidebar">
-              <h3>Menu Admin</h3>
-              <a href="#content">Konten Website</a>
-              <a href="kelola-penduduk.html">Data Penduduk</a>
-              <a href="kelola-berita.html">Berita & Pengumuman</a>
-              <a href="#activity">Log Aktivitas</a>
-              <button id="logout-btn" class="btn btn-outline" type="button">Logout</button>
+              <h3>📊 Menu Admin</h3>
+              <a href="#overview" onclick="document.getElementById('content').scrollIntoView()">📈 Overview Dashboard</a>
+              <a href="kelola-penduduk.html">👥 Data Penduduk</a>
+              <a href="#aparat-section" onclick="document.getElementById('aparat-preview').parentElement.parentElement.scrollIntoView()">👔 Aparatur Desa</a>
+              <a href="kelola-berita.html">📰 Berita & Pengumuman</a>
+              <a href="#keuangan-section" onclick="document.getElementById('keuangan-preview').parentElement.scrollIntoView()">💰 Keuangan (APBDes)</a>
+              <a href="#dokumen-section" onclick="document.getElementById('dokumen-preview').parentElement.scrollIntoView()">📄 Dokumen Publik</a>
+              <a href="#gallery-section" onclick="document.getElementById('gallery-preview-list').scrollIntoView()">🖼️ Galeri Kegiatan</a>
+              <a href="#pengaduan-section" onclick="document.getElementById('activity').scrollIntoView()">📥 Pengaduan Warga</a>
+              <button id="logout-btn" class="btn btn-outline" type="button" style="margin-top: auto; border-color: rgba(255,255,255,0.3); color: rgba(255,255,255,0.9);">🚪 Logout</button>
             </aside>
             <div class="dashboard-main">
-              <div class="dashboard-head">
+              <div class="dashboard-head" id="overview">
                 <div>
-                  <p class="eyebrow">Dashboard Admin</p>
-                  <h2>Kelola konten website desa</h2>
-                </div>
-              </div>
-
-              <div class="dashboard-preview">
-                <img src="assets/admin-dashboard.svg" alt="Dashboard Admin Desa Way Ilahan" />
-              </div>
-
-              <div class="dashboard-summary">
-                <div class="summary-card">
-                  <strong>12</strong>
-                  <span>Notifikasi Baru</span>
-                </div>
-                <div class="summary-card">
-                  <strong>8</strong>
-                  <span>Aktivitas Hari Ini</span>
-                </div>
-                <div class="summary-card">
-                  <strong>3</strong>
-                  <span>Data Perlu Review</span>
+                  <p class="eyebrow">Welcome Back</p>
+                  <h2>Selamat Datang, Administrator Desa Way Ilahan</h2>
                 </div>
               </div>
 
               <div id="activity" class="activity-card">
-                <h3>Log Aktivitas Terbaru</h3>
-                <ul class="list">
-                  <li>Admin memperbarui data keuangan desa.</li>
-                  <li>Admin menambahkan pengumuman terbaru.</li>
-                  <li>Admin mengubah daftar aparat desa.</li>
-                </ul>
+                <h3>Pengaduan & Aspirasi Warga Terbaru</h3>
+                <table class="table" style="margin-top: 1rem;">
+                  <thead>
+                    <tr>
+                      <th>Nama Warga</th>
+                      <th>Subjek</th>
+                      <th>Tanggal Masuk</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pengaduan-table">
+                    <tr>
+                      <td colspan="5" style="text-align: center; padding: 2rem;">Belum ada aspirasi atau pengaduan masuk.</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
 
-              <div class="grid-2">
-                <div class="activity-card">
-                  <h3>Pengaduan Masuk</h3>
-                  <ul class="list">
-                    <li>Pengaduan jalan rusak — menunggu tindak lanjut</li>
-                    <li>Permohonan informasi APBDes — sudah dibalas</li>
-                    <li>Saran layanan administrasi — dalam proses</li>
-                  </ul>
+              <div class="dashboard-summary">
+                <div class="summary-card">
+                  <strong id="stat-aparatur">10</strong>
+                  <span>Aparatur Desa</span>
                 </div>
-                <div class="activity-card">
-                  <h3>Status Publikasi</h3>
-                  <ul class="list">
-                    <li>Berita utama: Terbit</li>
-                    <li>Dokumen publik: Terbit</li>
-                    <li>Pengumuman: Terbit</li>
-                  </ul>
+                <div class="summary-card">
+                  <strong id="stat-berita">3</strong>
+                  <span>Berita / Pengumuman</span>
+                </div>
+                <div class="summary-card">
+                  <strong id="stat-pengaduan">0</strong>
+                  <span>Pengaduan Unread</span>
+                </div>
+                <div class="summary-card">
+                  <strong id="stat-dokumen">2</strong>
+                  <span>Dokumen Publik</span>
                 </div>
               </div>
-
-              <form id="admin-form" class="admin-form">
             <div class="grid-2">
               <label>
                 Nama Desa

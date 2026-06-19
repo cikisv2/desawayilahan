@@ -12,21 +12,24 @@
   </head>
   <body data-page="public">
     <header class="topbar">
-      <div class="container nav-wrap">
+      <div class="nav-wrap">
         <a class="brand" href="#home">
           <strong id="site-name">Desa Way Ilahan</strong>
-          <span id="site-tagline">Transparansi data dan keuangan desa</span>
+          <span id="site-tagline" style="font-size: 0.75rem;">TANGGAMUS, LAMPUNG</span>
         </a>
         <button class="menu-toggle" id="menu-toggle" aria-label="Buka menu navigasi" type="button">☰</button>
         <nav class="nav-links" id="nav-links">
-          <a href="#profil">Profil</a>
-          <a href="#data">Data</a>
-          <a href="#keuangan">Keuangan</a>
-          <a href="statistik.html">Statistik</a>
-          <a href="berita.html">Berita</a>
-          <a href="#kontak">Kontak</a>
-          <a class="btn btn-outline" href="masyarakat.html">Login Masyarakat</a>
-          <a class="btn btn-outline" href="admin.html">Login Admin</a>
+          <a href="#home">🏠 Beranda</a>
+          <a href="#profil">👤 Profil</a>
+          <a href="#aparatur" style="font-size: 0.92rem;">👥 Aparatur</a>
+          <a href="#data">📊 Kependudukan</a>
+          <a href="#keuangan">💰 Keuangan<br/>(APBDes)</a>
+          <a href="berita.html">📰 Berita</a>
+          <a href="dokumen.html">📄 Dokumen</a>
+          <a href="#kontak">☎️ Kami</a>
+          <a href="#kontak">🔔 Hubungi</a>
+          <a class="btn btn-outline" href="masyarakat.html" style="font-size: 0.85rem;">Login Masyarakat</a>
+          <a class="btn btn-primary" href="admin.html" style="font-size: 0.85rem;">👤 Admin Login</a>
         </nav>
       </div>
     </header>
@@ -35,19 +38,20 @@
       <section class="hero">
         <div class="container hero-grid">
           <div>
-            <div class="brand-logos">
+            <div style="text-align: center; margin-bottom: 1.5rem;">
+              <div style="display: inline-block; padding: 0.6rem 1.5rem; border: 2px solid var(--green); border-radius: 999px; color: var(--green); font-weight: 700; font-size: 0.85rem; letter-spacing: 0.08em; margin-bottom: 1rem;">
+                PORTAL RESMI TRANSPARANSI DESA
+              </div>
+            </div>
+            <div class="brand-logos" style="justify-content: center;">
               <img class="hero-logo" src="assets/logo-desa.svg" alt="Logo Desa Way Ilahan" />
               <img class="hero-logo hero-logo--tanggamus" src="assets/logo-tanggamus.svg" alt="Logo Kabupaten Tanggamus" />
             </div>
-            <div class="banner-card">
-              <img id="public-banner-image" src="assets/banner-desa.svg" alt="Banner Pemerintah Desa Way Ilahan" />
-            </div>
-            <p class="eyebrow">Sistem Informasi Desa</p>
-            <h1 id="hero-title">Selamat Datang di Desa Way Ilahan</h1>
-            <p id="hero-description" class="hero-text"></p>
-            <div class="hero-actions">
-              <a class="btn btn-primary" href="#keuangan">Lihat APBDes</a>
-              <a class="btn btn-secondary" href="#profil">Profil Desa</a>
+            <h1 id="hero-title" style="text-align: center; font-size: 2.8rem;">SIDATRA Desa Way Ilahan</h1>
+            <p id="hero-description" class="hero-text" style="text-align: center; margin-bottom: 2rem;"></p>
+            <div class="hero-actions" style="justify-content: center;">
+              <a class="btn btn-primary" href="#keuangan" style="font-size: 1rem; padding: 0.9rem 1.5rem;">📋 Lihat APBDes 2026</a>
+              <a class="btn btn-secondary" href="#profil" style="font-size: 1rem; padding: 0.9rem 1.5rem;">📚 Pelajari Profil Desa</a>
               <a class="btn btn-outline" href="dokumen.html">Dokumen Publik</a>
               <a class="btn btn-secondary" href="pengaduan.html">Pengaduan Warga</a>
               <a class="btn btn-outline" href="data-penduduk.html">Data Penduduk</a>
@@ -105,19 +109,21 @@
           <div class="stats-grid">
             <article class="stat-card">
               <h3 id="stat-penduduk">0</h3>
-              <p>Jumlah Penduduk</p>
+              <p>TOTAL PENDUDUK</p>
             </article>
             <article class="stat-card">
               <h3 id="stat-dusun">0</h3>
-              <p>Dusun</p>
+              <p>WILAYAH DUSUN</p>
             </article>
             <article class="stat-card">
-              <h3 id="stat-rw">0</h3>
-              <p>RW</p>
+              <h3 id="stat-rw" style="color: #d97706;">Rp</h3>
+              <h3 style="font-size: 1.3rem; margin: 0;">1.470.000.000</h3>
+              <p style="font-size: 0.8rem;">ANGGARAN DESA</p>
             </article>
             <article class="stat-card">
-              <h3 id="stat-rt">0</h3>
-              <p>RT</p>
+              <h3 id="stat-rt" style="color: #3b82f6;">Rp</h3>
+              <h3 style="font-size: 1.3rem; margin: 0;">1.420.000.000</h3>
+              <p style="font-size: 0.8rem;">REALISASI</p>
             </article>
           </div>
 
