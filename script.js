@@ -274,6 +274,64 @@ function getMasyarakatSession() {
   return safeReadJson('desaWayIlahanUser', null);
 }
 
+function normalizeMasyarakatAccount(item, index = 0) {
+  if (typeof item === 'string') {
+    const [nama = '', nik = ''] = item.split('|').map(part => part.trim());
+    return { nama, nik };
+  }
+  if (item && typeof item === 'object') {
+    return {
+      nama: item.nama || '',
+      nik: item.nik || item.NIK || ''
+    };
+  }
+  return { nama: '', nik: '' };
+}
+
+function getMasyarakatAccounts() {
+  const stored = safeReadJson('desaWayIlahanMasyarakatAccounts', []);
+  if (Array.isArray(stored) && stored.length) {
+    return stored.map((item, index) => normalizeMasyarakatAccount(item, index));
+  }
+
+  const data = loadData();
+  const fallback = Array.isArray(data.masyarakat) ? data.masyarakat : [];
+  return fallback.map((item, index) => normalizeMasyarakatAccount(item, index));
+}
+
+function saveMasyarakatAccounts(accounts) {
+  const cleaned = (accounts || [])
+    .map(account => normalizeMasyarakatAccount(account))
+    .filter(account => account.nama && account.nik);
+  localStorage.setItem('desaWayIlahanMasyarakatAccounts', JSON.stringify(cleaned));
+}
+
+function ensureMasyarakatAccount(name, nik) {
+  const accounts = getMasyarakatAccounts();
+  const existing = accounts.find(account => account.nama.toLowerCase() === name.toLowerCase() && account.nik === nik);
+
+  if (existing) {
+    return { created: false, account: existing };
+  }
+
+  const nextAccounts = [...accounts, { nama: name, nik }];
+  saveMasyarakatAccounts(nextAccounts);
+
+  const data = loadData();
+  const currentList = Array.isArray(data.masyarakat) ? data.masyarakat : [];
+  const alreadyListed = currentList.some(item => {
+    const [savedNama = '', savedNik = ''] = String(item).split('|').map(part => part.trim());
+    return savedNama.toLowerCase() === name.toLowerCase() && savedNik === nik;
+  });
+
+  if (!alreadyListed) {
+    data.masyarakat = [...currentList, `${name} | ${nik}`];
+    saveData(data);
+  }
+
+  return { created: true, account: nextAccounts[nextAccounts.length - 1] };
+}
+
 function readFileAsDataURL(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -920,20 +978,23 @@ function setupMasyarakatPage() {
     event.preventDefault();
     const nama = document.getElementById('masyarakat-nama').value.trim();
     const nik = document.getElementById('masyarakat-nik').value.trim();
-    const data = loadData();
-    const found = (data.masyarakat || []).some(item => {
-      const [savedNama, savedNik] = item.split('|').map(part => part.trim());
-      return savedNama.toLowerCase() === nama.toLowerCase() && savedNik === nik;
-    });
 
-    if (found) {
-      localStorage.setItem('desaWayIlahanMasyarakat', 'true');
-      localStorage.setItem('desaWayIlahanUser', JSON.stringify({ nama, nik }));
-      loginCard.classList.add('hidden');
-      dashboard.classList.remove('hidden');
-      renderMasyarakatDashboard();
+    if (!nama || !nik) {
+      alert('Isi nama lengkap dan NIK sebelum melanjutkan.');
+      return;
+    }
+
+    const { created } = ensureMasyarakatAccount(nama, nik);
+    localStorage.setItem('desaWayIlahanMasyarakat', 'true');
+    localStorage.setItem('desaWayIlahanUser', JSON.stringify({ nama, nik }));
+    loginCard.classList.add('hidden');
+    dashboard.classList.remove('hidden');
+    renderMasyarakatDashboard();
+
+    if (created) {
+      alert('Akun berhasil dibuat. Anda sekarang bisa masuk langsung.');
     } else {
-      alert('Nama atau NIK tidak terdaftar.');
+      alert('Login berhasil.');
     }
   });
 
